@@ -1,0 +1,16 @@
+---
+- name: Updating Packages 
+  apt:  
+    upgrade: dist
+    force_apt_get: yes 
+- name: Update apt-cache 
+  apt: 
+    update_cache: yes
+- name: Downloading and Deploying Docker Helper Script
+  shell: curl https://get.docker.com -o get-docker.sh && sh get-docker.sh
+  args:
+    warn: no
+- name: Add User to Docker Group 
+  become_user: ubuntu
+  shell: sudo usermod -aG docker $USER # I don't like how I have to use shell but it seems like it's the best to add a EXISTING user to the group.
+    

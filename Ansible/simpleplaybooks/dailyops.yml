@@ -1,0 +1,13 @@
+---
+- name: Daily Operations Playbook
+  hosts: all
+  remote_user: ubuntu
+  become: yes
+
+  tasks: 
+  - name: Update apt-cache 
+    apt: update_cache=yes
+  - name: Updating Packages 
+    apt:  upgrade=dist force_apt_get=yes
+    
+  

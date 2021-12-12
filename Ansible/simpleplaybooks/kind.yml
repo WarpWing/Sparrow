@@ -1,0 +1,8 @@
+---
+- name: Deploy Kubernetes In Docker
+  hosts: '{{ target }}'
+  become: true
+  roles:
+    - docker
+    - kubectl
+    - kind
