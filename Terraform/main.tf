@@ -11,46 +11,75 @@ provider "lxd" {
   generate_client_certificates = true
   accept_remote_certificate    = true
 } 
-resource "lxd_container" "anvil" {
-  name      = "anvil"
-  image     = "ubuntu:20.04"
-  ephemeral = false
-  profiles = ["default"]
-  limits     = {
-      "memory" = "2800MB"
-      "cpu" = 2
-  }
-}
 
-resource "lxd_container" "metal1" {
-  name      = "metal1"
-  image     = "ubuntu:20.04"
-  ephemeral = false
-  profiles = ["default"]
-   limits     = {
-      "memory" = "1800MB"
-      "cpu" = 2
-  }
-}
-
-resource "lxd_storage_pool" "bucket" {
-  name = "bucket"
-  driver = "zfs"
+resource "lxd_profile" "iceberg" {
+  name = "iceberg"
   config = {
-    size   = "40GB"
+      "limits.memory" = "1800MB"
+      "limits.cpu" = 2
+      "user.access_interface" = "eth0"
   }
+    device {
+      name = "shared"
+      type = "disk"
+
+      properties = {
+        source = "/tmp"
+        path   = "/tmp"
+      }
+    }
+
+    device {
+      type = "disk"
+      name = "root"
+
+      properties = {
+        pool = "default"
+        path = "/"
+      }
+  }  
 }
 
-resource "lxd_volume" "forgechild" {
-  name = "forgechild"
-  pool = "${lxd_storage_pool.bucket.name}"
+resource "lxd_container" "glacier0" {
+  name      = "glacier0"
+  image     = "ubuntu:20.04"
+  ephemeral = false
+  profiles = ["default", "${lxd_profile.iceberg.name}"]
 }
 
-
-output "anvil-ip" {
-  value = lxd_container.anvil.ip_address
+output "glacier0" {
+  value = lxd_container.glacier0.ip_address
 }
 
-output "metal1-ip" {
-  value = lxd_container.metal1.ip_address
+resource "lxd_container" "glacier1" {
+  name      = "glacier1"
+  image     = "ubuntu:20.04"
+  ephemeral = false
+  profiles = ["default", "${lxd_profile.iceberg.name}"]
+}
+
+output "glacier1" {
+  value = lxd_container.glacier1.ip_address
+} 
+
+resource "lxd_container" "glacier2" {
+  name      = "glacier2"
+  image     = "ubuntu:20.04"
+  ephemeral = false
+  profiles = ["default", "${lxd_profile.iceberg.name}"]
+}
+
+output "glacier2" {
+  value = lxd_container.glacier2.ip_address
+} 
+
+resource "lxd_container" "glacier3" {
+  name      = "glacier"
+  image     = "ubuntu:20.04"
+  ephemeral = false
+  profiles = ["default", "${lxd_profile.iceberg.name}"]
+}
+
+output "glacier3" {
+  value = lxd_container.glacier3.ip_address
 }
